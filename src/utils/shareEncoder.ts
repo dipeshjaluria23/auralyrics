@@ -16,8 +16,20 @@ export function encodeSharePayload(payload: {
   mode?: VisualizerMode;
 }): string {
   try {
+    // Sanitize song for universal sharing:
+    // Blob URLs (blob:http...) are strictly in-memory to the local device and will fail on other phones/laptops.
+    const sanitizedSong: Song = { ...payload.song };
+    if (sanitizedSong.audioUrl && sanitizedSong.audioUrl.startsWith('blob:')) {
+      delete sanitizedSong.audioUrl;
+      sanitizedSong.sourceType = 'synth';
+    }
+    if (sanitizedSong.coverUrl && sanitizedSong.coverUrl.startsWith('blob:')) {
+      sanitizedSong.coverUrl =
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80';
+    }
+
     const dataToEncode: SharePayload = {
-      song: payload.song,
+      song: sanitizedSong,
       colors: payload.colors,
       mode: payload.mode,
       createdAt: Date.now(),
@@ -56,6 +68,11 @@ export function decodeSharePayload(hashString: string): SharePayload | null {
 
     const parsed: SharePayload = JSON.parse(jsonStr);
     if (parsed && parsed.song && parsed.song.title && parsed.song.lyrics) {
+      // Extra safety: ensure dead blob URLs don't break playback on recipient device
+      if (parsed.song.audioUrl && parsed.song.audioUrl.startsWith('blob:')) {
+        delete parsed.song.audioUrl;
+        parsed.song.sourceType = 'synth';
+      }
       return parsed;
     }
     return null;

@@ -68,10 +68,25 @@ class AudioEngine {
       this.vocalGain.connect(this.masterGain);
       this.masterGain.connect(this.analyser);
       this.analyser.connect(this.ctx.destination);
+
+      // Auto-unlock AudioContext on first user touch / click across mobile & desktop
+      if (typeof window !== 'undefined') {
+        const unlock = () => {
+          this.resumeAudioContext();
+        };
+        window.addEventListener('click', unlock, { passive: true });
+        window.addEventListener('touchstart', unlock, { passive: true });
+        window.addEventListener('pointerdown', unlock, { passive: true });
+        window.addEventListener('keydown', unlock, { passive: true });
+      }
     }
 
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    this.resumeAudioContext();
+  }
+
+  public resumeAudioContext() {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
     }
   }
 
@@ -314,18 +329,35 @@ class AudioEngine {
     this.init();
     this.stopSynth();
 
+    if (!url) {
+      this.startSynth('synthwave');
+      return;
+    }
+
     if (!this.audioElement) {
       this.audioElement = new Audio();
       this.audioElement.crossOrigin = 'anonymous';
       this.setupCustomAudioDSP();
     }
 
+    this.audioElement.onerror = () => {
+      console.warn('Custom audio playback error, falling back to synth engine');
+      this.startSynth('synthwave');
+    };
+
     if (this.audioElement.src !== url) {
       this.audioElement.src = url;
     }
     this.audioElement.currentTime = startTime;
     this.audioElement.playbackRate = playbackRate;
-    return this.audioElement.play();
+    
+    const playPromise = this.audioElement.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.warn('Audio play request failed, falling back to synth audio:', err);
+        this.startSynth('synthwave');
+      });
+    }
   }
 
   private setupCustomAudioDSP() {

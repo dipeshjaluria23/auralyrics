@@ -211,6 +211,9 @@ export function App() {
   // Audio Playback Engine Sync
   useEffect(() => {
     if (isPlaying) {
+      audioEngine.init();
+      audioEngine.resumeAudioContext();
+
       if (currentSong.youtubeVideoId) {
         audioEngine.stopSynth();
         audioEngine.pauseCustomAudio();
@@ -322,6 +325,8 @@ export function App() {
 
   // Play / Pause Toggle
   const handlePlayPause = () => {
+    audioEngine.init();
+    audioEngine.resumeAudioContext();
     setIsPlaying((prev) => !prev);
   };
 
