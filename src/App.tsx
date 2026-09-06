@@ -649,8 +649,8 @@ export function App() {
             className="glass-button px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-purple-600/40 to-pink-600/40 hover:from-purple-600/70 hover:to-pink-600/70 border border-purple-500/30 flex items-center gap-1.5 shadow-lg"
             title="Share Visualizer Link (Current Theme & Song)"
           >
-            <Share2 className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">Share</span>
+            <Share2 className="w-3.5 h-3.5 text-purple-300" />
+            <span className="font-semibold text-white">Share</span>
           </button>
 
           {/* Paste Link Badge */}
@@ -741,7 +741,6 @@ export function App() {
           onVolumeChange={setVolume}
           onPlaybackRateChange={setPlaybackRate}
           onToggleFullscreen={handleToggleFullscreen}
-          onShareVisualizer={() => handleShareVisualizer(currentSong)}
           onOpenShortcuts={() => setIsShortcutsOpen(true)}
           onOpenSettings={() => openControlCenter('modes')}
           onOpenStudio={() => setIsStudioOpen(true)}

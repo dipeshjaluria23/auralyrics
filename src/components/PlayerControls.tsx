@@ -16,7 +16,6 @@ import {
   Link as LinkIcon,
   Palette,
   Keyboard,
-  Share2,
 } from 'lucide-react';
 
 import type { Song, ThemeColors, VisualSettings, VisualizerMode } from '../types/lyrics';
@@ -39,7 +38,6 @@ interface PlayerControlsProps {
   onVolumeChange: (vol: number) => void;
   onPlaybackRateChange: (rate: number) => void;
   onToggleFullscreen: () => void;
-  onShareVisualizer?: () => void;
   onOpenShortcuts: () => void;
   onOpenSettings: () => void;
   onOpenStudio: () => void;
@@ -66,7 +64,6 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
   onVolumeChange,
   onPlaybackRateChange,
   onToggleFullscreen,
-  onShareVisualizer,
   onOpenShortcuts,
   onOpenSettings,
   onOpenStudio,
@@ -295,18 +292,6 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
                 className="w-16 h-1 cursor-pointer accent-white hidden sm:inline-block"
               />
             </div>
-
-            {/* Instant Share Button */}
-            {onShareVisualizer && (
-              <button
-                onClick={onShareVisualizer}
-                className="p-2 rounded-xl text-white/90 hover:text-white bg-gradient-to-r from-purple-600/30 to-pink-600/30 hover:from-purple-600/60 hover:to-pink-600/60 transition-all border border-purple-500/40 flex items-center gap-1.5 text-xs shadow-md"
-                title="Share Visualizer Link"
-              >
-                <Share2 className="w-4 h-4 text-purple-300" />
-                <span className="font-semibold">Share</span>
-              </button>
-            )}
 
             {/* Paste Link Button */}
             <button
