@@ -741,6 +741,7 @@ export function App() {
           onVolumeChange={setVolume}
           onPlaybackRateChange={setPlaybackRate}
           onToggleFullscreen={handleToggleFullscreen}
+          onShareVisualizer={() => handleShareVisualizer(currentSong)}
           onOpenShortcuts={() => setIsShortcutsOpen(true)}
           onOpenSettings={() => openControlCenter('modes')}
           onOpenStudio={() => setIsStudioOpen(true)}
