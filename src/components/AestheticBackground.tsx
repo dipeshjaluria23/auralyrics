@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ThemeColors, VisualSettings } from '../types/lyrics';
 import { audioEngine } from '../utils/audioSynth';
 
@@ -25,11 +25,32 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
     bgStyle === 'album-cover-blur' ||
     isCustom;
 
-  const activeImage = isCustom && settings.customWallpaperUrl ? settings.customWallpaperUrl : coverUrl;
+  // Active target cover (custom wallpaper or song's cover)
+  const targetImage = isCustom && settings.customWallpaperUrl ? settings.customWallpaperUrl : coverUrl;
+
+  // Smooth Cross-Fade between Song Covers
+  const [activeCover, setActiveCover] = useState<string>(targetImage);
+  const [prevCover, setPrevCover] = useState<string | null>(null);
+  const [isCrossFading, setIsCrossFading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (targetImage && targetImage !== activeCover) {
+      setPrevCover(activeCover);
+      setActiveCover(targetImage);
+      setIsCrossFading(true);
+
+      const timer = setTimeout(() => {
+        setIsCrossFading(false);
+        setPrevCover(null);
+      }, 900);
+
+      return () => clearTimeout(timer);
+    }
+  }, [targetImage, activeCover]);
 
   const defaultBlur = bgStyle === 'album-cover-original' ? 0 : bgStyle === 'album-cover-cinematic' ? 8 : 40;
   const coverBlur = settings.coverBlurAmount !== undefined ? settings.coverBlurAmount : defaultBlur;
-  const coverOpacity = settings.coverOpacity !== undefined ? settings.coverOpacity : 0.75;
+  const coverOpacity = settings.coverOpacity !== undefined ? settings.coverOpacity : 0.85;
   const isKenBurns = settings.kenBurnsEffect !== false;
 
   const showCanvas = bgStyle === 'dynamic-canvas' || bgStyle === 'album-cover-blur';
@@ -170,17 +191,37 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
       />
 
       {/* 2. Full-Bleed Album Cover Backdrop (Original, Cinematic, Blur, or Custom Uploaded Wallpaper) */}
-      {isCoverStyle && activeImage && (
+      {isCoverStyle && prevCover && (
         <div
-          className={`absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center transition-all duration-1000 ${
+          className={`absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center transition-opacity duration-700 ${
             isKenBurns && isPlaying ? 'animate-ken-burns' : 'scale-105'
           }`}
           style={{
-            backgroundImage: `url(${activeImage})`,
+            backgroundImage: `url(${prevCover})`,
+            opacity: isCrossFading ? 0 : coverOpacity,
+            filter: `blur(${coverBlur}px) saturate(1.35) brightness(${
+              bgStyle === 'album-cover-original'
+                ? 0.85
+                : bgStyle === 'album-cover-cinematic'
+                ? 0.75
+                : 0.65
+            })`,
+            willChange: 'transform, opacity, filter',
+          }}
+        />
+      )}
+
+      {isCoverStyle && activeCover && (
+        <div
+          className={`absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center transition-opacity duration-700 ${
+            isKenBurns && isPlaying ? 'animate-ken-burns' : 'scale-105'
+          }`}
+          style={{
+            backgroundImage: `url(${activeCover})`,
             opacity: coverOpacity,
             filter: `blur(${coverBlur}px) saturate(1.35) brightness(${
               bgStyle === 'album-cover-original'
-                ? 0.82
+                ? 0.85
                 : bgStyle === 'album-cover-cinematic'
                 ? 0.75
                 : 0.65

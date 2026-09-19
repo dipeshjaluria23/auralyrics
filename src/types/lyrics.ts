@@ -74,6 +74,7 @@ export interface VisualSettings {
   kenBurnsEffect: boolean; // slow ambient pan/zoom of cover art
   smoothSpringTransitions: boolean; // ultra-smooth spring physics for word/line transitions
   customWallpaperUrl?: string; // custom uploaded background wallpaper image data URL
+  autoCoverBackground?: boolean; // automatically sync and update background with current song's cover art
 }
 
 

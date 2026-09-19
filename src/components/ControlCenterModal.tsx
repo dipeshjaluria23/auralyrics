@@ -1072,6 +1072,27 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                   <label className="flex items-center justify-between cursor-pointer p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        🔄 Auto-Set Cover on Track Change
+                      </div>
+                      <div className="text-[11px] text-white/50">Auto-update backdrop to current song cover</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.autoCoverBackground !== false}
+                      onChange={(e) => {
+                        const enabled = e.target.checked;
+                        onUpdateSettings({
+                          autoCoverBackground: enabled,
+                          ...(enabled ? { backgroundStyle: 'album-cover-original', customWallpaperUrl: undefined } : {}),
+                        });
+                      }}
+                      className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between cursor-pointer p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
                         ⚡ Silky Smooth Lyrics Spring
                       </div>
                       <div className="text-[11px] text-white/50">Hardware-accelerated fluid transitions</div>

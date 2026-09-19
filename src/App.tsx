@@ -84,6 +84,7 @@ export function App() {
       coverOpacity: 0.85,
       kenBurnsEffect: true,
       smoothSpringTransitions: true,
+      autoCoverBackground: true,
     })
   );
 
@@ -190,7 +191,7 @@ export function App() {
   const startTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
 
-  // Extract colors when song changes
+  // Extract colors & sync background when song changes
   useEffect(() => {
     let isMounted = true;
 
