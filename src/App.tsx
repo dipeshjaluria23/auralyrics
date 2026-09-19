@@ -79,6 +79,11 @@ export function App() {
       showLockScreenClock: true,
       lumnLighting: true,
       visualIcons: true,
+      backgroundStyle: 'album-cover-blur',
+      coverBlurAmount: 40,
+      coverOpacity: 0.65,
+      kenBurnsEffect: true,
+      smoothSpringTransitions: true,
     })
   );
 

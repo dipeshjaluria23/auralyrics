@@ -269,5 +269,67 @@ input[type=range]::-webkit-slider-thumb:hover {
   animation: vhsFlicker 0.15s infinite;
 }
 
+/* Cinematic Ken Burns Album Cover Animation */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+  25% {
+    transform: scale(1.15) translate(-1.8%, -1.2%);
+  }
+  50% {
+    transform: scale(1.08) translate(1.5%, -1.8%);
+  }
+  75% {
+    transform: scale(1.16) translate(-1.2%, 1.5%);
+  }
+  100% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurns 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Fluid Line-by-Line Cross-fade Transition */
+@keyframes lineSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.96);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.animate-line-slide {
+  animation: lineSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+/* Smooth Hardware-Accelerated Kinetic Word Transitions */
+.kinetic-word-smooth {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.22s ease,
+              text-shadow 0.28s ease,
+              filter 0.28s ease,
+              opacity 0.22s ease;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
 
 

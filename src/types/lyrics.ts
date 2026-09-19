@@ -44,6 +44,8 @@ export type FontStyle = 'syne' | 'orbitron' | 'playfair' | 'outfit' | 'cinzel' |
 
 export type TransitionEffect = 'rise-up' | 'kinetic-pop' | 'flip-rise' | 'glow-float';
 
+export type BackgroundStyle = 'album-cover-cinematic' | 'album-cover-blur' | 'dynamic-canvas' | 'minimal-gradient';
+
 export interface VisualSettings {
   mode: VisualizerMode;
   font: FontStyle;
@@ -59,6 +61,12 @@ export interface VisualSettings {
   showLockScreenClock: boolean;
   lumnLighting: boolean;
   visualIcons: boolean;
+  // Dynamic Background & Album Cover Settings
+  backgroundStyle: BackgroundStyle;
+  coverBlurAmount: number; // 0 to 80px
+  coverOpacity: number; // 0.1 to 1.0
+  kenBurnsEffect: boolean; // slow ambient pan/zoom of cover art
+  smoothSpringTransitions: boolean; // ultra-smooth spring physics for word/line transitions
 }
 
 

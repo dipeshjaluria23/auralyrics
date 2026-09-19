@@ -25,6 +25,7 @@ import {
   Database,
   Download,
   Upload,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export type ControlCenterTab = 'modes' | 'colors' | 'typography' | 'atmosphere' | 'audio' | 'tools';
@@ -870,8 +871,134 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                   </div>
                 </div>
 
+                {/* Dynamic Wallpaper & Cover Art Backdrop Section */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                  <div>
+                    <h4 className="text-xs uppercase font-mono tracking-wider text-white flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 text-cyan-400" /> Song Cover Artwork & Backdrop Style
+                    </h4>
+                    <p className="text-[11px] text-white/50 mt-1">
+                      Choose between Apple Music fluid artwork blur, cinematic Ken Burns, or fluid canvas
+                    </p>
+                  </div>
+
+                  {/* 4 Background Style Pills */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {[
+                      {
+                        id: 'album-cover-blur',
+                        label: '🎵 Apple Music Fluid Blur',
+                        desc: 'Artwork blurred into glowing fluid colors behind lyrics',
+                      },
+                      {
+                        id: 'album-cover-cinematic',
+                        label: '🎬 Cinematic Ken Burns Art',
+                        desc: 'Slow cinematic motion zoom & pan across album cover',
+                      },
+                      {
+                        id: 'dynamic-canvas',
+                        label: '🌀 Dynamic Fluid Mesh Canvas',
+                        desc: 'Floating chromatic energy blobs and moving stardust',
+                      },
+                      {
+                        id: 'minimal-gradient',
+                        label: '🖤 Minimal AMOLED Gradient',
+                        desc: 'Ultra clean deep black with subtle ambient vignette',
+                      },
+                    ].map((style) => {
+                      const isSelected = (settings.backgroundStyle || 'album-cover-blur') === style.id;
+                      return (
+                        <button
+                          key={style.id}
+                          onClick={() => onUpdateSettings({ backgroundStyle: style.id as VisualSettings['backgroundStyle'] })}
+                          className={`p-3 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-md'
+                              : 'bg-white/5 border-white/10 hover:bg-white/10 text-white/70'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-white flex items-center justify-between">
+                            <span>{style.label}</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                          </div>
+                          <div className="text-[11px] text-white/50 mt-1">{style.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Cover Artwork Adjustments (Active for album cover backdrop styles) */}
+                  {((settings.backgroundStyle || 'album-cover-blur') === 'album-cover-blur' ||
+                    settings.backgroundStyle === 'album-cover-cinematic') && (
+                    <div className="space-y-4 pt-3 border-t border-white/10">
+                      {/* Cover Blur Amount Slider */}
+                      <div>
+                        <div className="flex justify-between text-xs text-white/70 mb-1.5">
+                          <span>🌫️ Cover Blur Depth</span>
+                          <span className="font-mono text-white font-bold">{settings.coverBlurAmount ?? 40}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="80"
+                          step="2"
+                          value={settings.coverBlurAmount ?? 40}
+                          onChange={(e) => onUpdateSettings({ coverBlurAmount: parseInt(e.target.value) })}
+                          className="w-full h-1.5 cursor-pointer accent-cyan-400"
+                        />
+                      </div>
+
+                      {/* Cover Opacity Slider */}
+                      <div>
+                        <div className="flex justify-between text-xs text-white/70 mb-1.5">
+                          <span>👁️ Cover Artwork Opacity</span>
+                          <span className="font-mono text-white font-bold">{Math.round((settings.coverOpacity ?? 0.65) * 100)}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="1.0"
+                          step="0.05"
+                          value={settings.coverOpacity ?? 0.65}
+                          onChange={(e) => onUpdateSettings({ coverOpacity: parseFloat(e.target.value) })}
+                          className="w-full h-1.5 cursor-pointer accent-pink-400"
+                        />
+                      </div>
+
+                      {/* Ken Burns Motion Toggle */}
+                      <label className="flex items-center justify-between cursor-pointer p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                        <div>
+                          <div className="text-xs font-bold text-white">🎬 Ken Burns Cinematic Motion</div>
+                          <div className="text-[11px] text-white/50">Slow ambient pan & zoom across cover</div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={settings.kenBurnsEffect !== false}
+                          onChange={(e) => onUpdateSettings({ kenBurnsEffect: e.target.checked })}
+                          className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+
                 {/* Toggles Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="flex items-center justify-between cursor-pointer p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        ⚡ Silky Smooth Lyrics Spring
+                      </div>
+                      <div className="text-[11px] text-white/50">Hardware-accelerated fluid transitions</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.smoothSpringTransitions !== false}
+                      onChange={(e) => onUpdateSettings({ smoothSpringTransitions: e.target.checked })}
+                      className="w-4 h-4 accent-pink-500 rounded cursor-pointer"
+                    />
+                  </label>
+
                   <label className="flex items-center justify-between cursor-pointer p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-1.5">

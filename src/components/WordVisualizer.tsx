@@ -83,6 +83,9 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
       : 'animate-rise-up';
 
   const isExtraMassive = settings.textSize === 'extra-massive';
+  const isSpring = settings.smoothSpringTransitions !== false;
+  const wordSmoothClass = isSpring ? 'kinetic-word-smooth' : 'transition-all duration-200';
+  const lineSlideClass = isSpring ? 'animate-line-slide' : '';
 
   return (
     <div className={`relative w-full ${isExtraMassive ? 'min-h-[75vh]' : 'min-h-[60vh]'} flex flex-col items-center justify-center p-2 sm:p-6 select-none overflow-hidden`}>
@@ -106,7 +109,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 1: HERO SINGLE WORD DISPLAY */}
       {activeLine && settings.mode === 'hero-word' && (
-        <div className="w-full flex flex-col items-center justify-center text-center">
+        <div key={`hero-line-${currentLineIndex}`} className={`w-full flex flex-col items-center justify-center text-center ${lineSlideClass}`}>
           {/* Previous words ghost trail */}
           {!isExtraMassive && (
             <div className="flex flex-wrap items-center justify-center gap-2 mb-4 max-w-2xl px-4 opacity-40 hover:opacity-80 transition-opacity">
@@ -114,7 +117,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                 <span
                   key={idx}
                   onClick={() => onSeek(w.startTime)}
-                  className={`${fontClass} text-base sm:text-xl font-medium cursor-pointer text-white/70 hover:text-white transition-colors`}
+                  className={`${fontClass} text-base sm:text-xl font-medium cursor-pointer text-white/70 hover:text-white ${wordSmoothClass}`}
                 >
                   {w.text}
                 </span>
@@ -139,7 +142,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
                 {/* Primary Hero Text with dynamic gradient & kinetic rising animation */}
                 <span
-                  className={`relative z-10 inline-block font-black uppercase tracking-tight cursor-pointer ${fontClass} ${sizeMultiplierClass} transition-all duration-150`}
+                  className={`relative z-10 inline-block font-black uppercase tracking-tight cursor-pointer ${fontClass} ${sizeMultiplierClass} ${wordSmoothClass}`}
                   style={{
                     color: colors.lyricTextColor || (activeWord.emphasis ? colors.accent : '#ffffff'),
                     textShadow: `0 0 ${35 * settings.glowIntensity}px ${colors.glow}, 0 0 ${70 * settings.glowIntensity}px ${colors.primary}`,
@@ -166,7 +169,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                 <span
                   key={idx}
                   onClick={() => onSeek(w.startTime)}
-                  className={`${fontClass} text-base sm:text-xl font-light cursor-pointer text-white/80 hover:text-white transition-colors`}
+                  className={`${fontClass} text-base sm:text-xl font-light cursor-pointer text-white/80 hover:text-white ${wordSmoothClass}`}
                 >
                   {w.text}
                 </span>
@@ -191,13 +194,13 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 2: VERCI FISHEYE CONVEX LENS (Signature Instagram Reel Lock Screen look) */}
       {activeLine && settings.mode === 'fisheye' && (
-        <div className="w-full max-w-5xl flex flex-col items-center justify-center text-center px-4" style={{ perspective: '1200px' }}>
+        <div key={`fisheye-${currentLineIndex}`} className={`w-full max-w-5xl flex flex-col items-center justify-center text-center px-4 ${lineSlideClass}`} style={{ perspective: '1200px' }}>
           <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 transform-style-3d">
             {/* Line -2 */}
             {currentLineIndex > 1 && (
               <div
                 onClick={() => onSeek(song.lyrics[currentLineIndex - 2].startTime)}
-                className="opacity-20 blur-[3px] scale-80 transform -rotate-x-[35deg] -translate-y-4 cursor-pointer hover:opacity-50 transition-all"
+                className={`opacity-20 blur-[3px] scale-80 transform -rotate-x-[35deg] -translate-y-4 cursor-pointer hover:opacity-50 ${wordSmoothClass}`}
               >
                 <p className={`${fontClass} text-xl sm:text-3xl font-light text-white/60 truncate max-w-2xl`}>
                   {song.lyrics[currentLineIndex - 2].text}
@@ -209,7 +212,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
             {currentLineIndex > 0 && (
               <div
                 onClick={() => onSeek(song.lyrics[currentLineIndex - 1].startTime)}
-                className="opacity-40 blur-[1px] scale-90 transform -rotate-x-[20deg] cursor-pointer hover:opacity-75 transition-all"
+                className={`opacity-40 blur-[1px] scale-90 transform -rotate-x-[20deg] cursor-pointer hover:opacity-75 ${wordSmoothClass}`}
               >
                 <p className={`${fontClass} text-2xl sm:text-4xl font-normal text-white/70 truncate max-w-3xl`}>
                   {song.lyrics[currentLineIndex - 1].text}
@@ -219,7 +222,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
             {/* Active Center Convex Lens Line (Sits closest to the glass with maximum bulge) */}
             <div
-              className="p-4 sm:p-6 rounded-3xl scale-110 sm:scale-120 transform translate-z-[50px] z-30 transition-all duration-300"
+              className={`p-4 sm:p-6 rounded-3xl scale-110 sm:scale-120 transform translate-z-[50px] z-30 ${wordSmoothClass}`}
               style={{
                 textShadow: `0 0 ${30 * settings.glowIntensity}px ${colors.glow}`,
               }}
@@ -233,7 +236,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                     <span
                       key={idx}
                       onClick={() => onSeek(word.startTime)}
-                      className={`inline-block cursor-pointer font-black transition-all duration-200 ${fontClass} ${
+                      className={`inline-block cursor-pointer font-black ${wordSmoothClass} ${fontClass} ${
                         isCurrent
                           ? `${sizeMultiplierClass} ${transitionClass} text-white scale-125 z-30`
                           : isPast
@@ -260,7 +263,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
             {nextLine && (
               <div
                 onClick={() => onSeek(nextLine.startTime)}
-                className="opacity-40 blur-[1px] scale-90 transform rotate-x-[20deg] cursor-pointer hover:opacity-75 transition-all"
+                className={`opacity-40 blur-[1px] scale-90 transform rotate-x-[20deg] cursor-pointer hover:opacity-75 ${wordSmoothClass}`}
               >
                 <p className={`${fontClass} text-2xl sm:text-4xl font-normal text-white/70 truncate max-w-3xl`}>
                   {nextLine.text}
@@ -272,7 +275,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
             {currentLineIndex + 2 < song.lyrics.length && (
               <div
                 onClick={() => onSeek(song.lyrics[currentLineIndex + 2].startTime)}
-                className="opacity-20 blur-[3px] scale-80 transform rotate-x-[35deg] translate-y-4 cursor-pointer hover:opacity-50 transition-all"
+                className={`opacity-20 blur-[3px] scale-80 transform rotate-x-[35deg] translate-y-4 cursor-pointer hover:opacity-50 ${wordSmoothClass}`}
               >
                 <p className={`${fontClass} text-xl sm:text-3xl font-light text-white/60 truncate max-w-2xl`}>
                   {song.lyrics[currentLineIndex + 2].text}
@@ -285,7 +288,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 3: VERCI VISUAL SYMBOLS MODE (Words + SF Symbols / Emojis Pop-In) */}
       {activeLine && settings.mode === 'visual-symbols' && (
-        <div className="w-full max-w-5xl flex flex-col items-center justify-center text-center px-4">
+        <div key={`visual-symbols-${currentLineIndex}`} className={`w-full max-w-5xl flex flex-col items-center justify-center text-center px-4 ${lineSlideClass}`}>
           <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-4 my-6 p-6 rounded-3xl glass-panel box-glow" style={{ '--glow-color': colors.primary } as React.CSSProperties}>
             {activeLine.words.map((word: Word, idx: number) => {
               const isCurrent = idx === currentWordIndex;
@@ -297,7 +300,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                   {/* Symbol badge popping above keyword */}
                   {symbol && (
                     <span
-                      className={`text-2xl sm:text-3xl mb-1 transition-all transform duration-200 ${
+                      className={`text-2xl sm:text-3xl mb-1 ${wordSmoothClass} transform ${
                         isCurrent
                           ? 'scale-130 -translate-y-2 opacity-100 animate-bounce'
                           : isPast
@@ -311,7 +314,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
                   <span
                     onClick={() => onSeek(word.startTime)}
-                    className={`inline-block cursor-pointer font-black transition-all duration-200 ${fontClass} ${
+                    className={`inline-block cursor-pointer font-black ${wordSmoothClass} ${fontClass} ${
                       isCurrent
                         ? `${sizeMultiplierClass} ${transitionClass} text-white z-30`
                         : isPast
@@ -338,7 +341,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
           {nextLine && (
             <p
               onClick={() => onSeek(nextLine.startTime)}
-              className={`${fontClass} text-base sm:text-xl text-white/30 hover:text-white/60 cursor-pointer font-light mt-4`}
+              className={`${fontClass} text-base sm:text-xl text-white/30 hover:text-white/60 cursor-pointer font-light mt-4 ${wordSmoothClass}`}
             >
               {nextLine.text}
             </p>
@@ -348,7 +351,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 4: VERCI SHIP 3D DRIFT WALL */}
       {activeLine && settings.mode === 'ship-3d' && (
-        <div className="w-full max-w-6xl flex flex-col items-center justify-center text-center px-4" style={{ perspective: '1400px' }}>
+        <div key={`ship3d-${currentLineIndex}`} className={`w-full max-w-6xl flex flex-col items-center justify-center text-center px-4 ${lineSlideClass}`} style={{ perspective: '1400px' }}>
           <div className="space-y-4 transform -rotate-y-[8deg] rotate-x-[12deg] transition-transform duration-700">
             {song.lyrics.slice(Math.max(0, currentLineIndex - 2), currentLineIndex + 3).map((line, lIdx) => {
               const actualLineIdx = Math.max(0, currentLineIndex - 2) + lIdx;
@@ -358,7 +361,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                 <div
                   key={line.id}
                   onClick={() => onSeek(line.startTime)}
-                  className={`p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
+                  className={`p-3 sm:p-4 rounded-2xl cursor-pointer ${wordSmoothClass} ${
                     isCurrentLine
                       ? 'bg-white/15 backdrop-blur-xl border border-white/30 scale-110 shadow-2xl z-20'
                       : 'opacity-30 blur-[1px] hover:opacity-60 scale-95'
@@ -378,7 +381,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                       return (
                         <span
                           key={wIdx}
-                          className={`font-black ${fontClass} ${
+                          className={`font-black ${fontClass} ${wordSmoothClass} ${
                             isCurWord
                               ? `text-4xl sm:text-6xl text-white scale-115 ${transitionClass}`
                               : isCurrentLine
@@ -404,12 +407,12 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 5: KINETIC FLOW */}
       {activeLine && settings.mode === 'kinetic-flow' && (
-        <div className="w-full max-w-5xl flex flex-col items-center justify-center text-center px-4 space-y-6">
+        <div key={`kinetic-flow-${currentLineIndex}`} className={`w-full max-w-5xl flex flex-col items-center justify-center text-center px-4 space-y-6 ${lineSlideClass}`}>
           {/* Previous Line Ghost */}
           {currentLineIndex > 0 && (
             <p
               onClick={() => onSeek(song.lyrics[currentLineIndex - 1].startTime)}
-              className={`${fontClass} text-lg sm:text-2xl text-white/25 hover:text-white/50 cursor-pointer font-light transition-all transform -translate-y-2`}
+              className={`${fontClass} text-lg sm:text-2xl text-white/25 hover:text-white/50 cursor-pointer font-light ${wordSmoothClass} transform -translate-y-2`}
             >
               {song.lyrics[currentLineIndex - 1].text}
             </p>
@@ -425,7 +428,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                 <span
                   key={idx}
                   onClick={() => onSeek(word.startTime)}
-                  className={`relative inline-block cursor-pointer font-bold transition-all duration-200 ${fontClass} ${
+                  className={`relative inline-block cursor-pointer font-bold ${wordSmoothClass} ${fontClass} ${
                     isCurrent
                       ? `${sizeMultiplierClass} scale-110 z-20 ${transitionClass}`
                       : isPast
@@ -460,7 +463,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
           {nextLine && (
             <p
               onClick={() => onSeek(nextLine.startTime)}
-              className={`${fontClass} text-lg sm:text-2xl text-white/25 hover:text-white/50 cursor-pointer font-light transition-all transform translate-y-2`}
+              className={`${fontClass} text-lg sm:text-2xl text-white/25 hover:text-white/50 cursor-pointer font-light ${wordSmoothClass} transform translate-y-2`}
             >
               {nextLine.text}
             </p>
@@ -470,7 +473,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 6: REEL / TIKTOK KINETIC POP */}
       {activeLine && settings.mode === 'reel-pop' && (
-        <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center">
+        <div key={`reel-pop-${currentLineIndex}`} className={`w-full max-w-4xl flex flex-col items-center justify-center text-center ${lineSlideClass}`}>
           <div className="p-8 rounded-3xl glass-panel box-glow max-w-3xl w-full" style={{ '--glow-color': colors.primary } as React.CSSProperties}>
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
               {activeLine.words.map((w: Word, idx: number) => {
@@ -481,7 +484,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                   <span
                     key={idx}
                     onClick={() => onSeek(w.startTime)}
-                    className={`inline-block px-3 py-1.5 rounded-xl cursor-pointer font-black transition-all transform duration-150 ${fontClass} ${
+                    className={`inline-block px-3 py-1.5 rounded-xl cursor-pointer font-black ${wordSmoothClass} ${fontClass} ${
                       isCurrent
                         ? 'text-4xl sm:text-6xl scale-125 rotate-1 bg-white text-black shadow-2xl z-20'
                         : isPast
@@ -507,7 +510,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 7: MINIMAL ZEN */}
       {activeLine && settings.mode === 'minimal-zen' && (
-        <div className="w-full max-w-3xl flex flex-col items-start justify-center px-8 sm:px-16 border-l-2 border-white/20 py-8 transition-all">
+        <div key={`minimal-zen-${currentLineIndex}`} className={`w-full max-w-3xl flex flex-col items-start justify-center px-8 sm:px-16 border-l-2 border-white/20 py-8 ${lineSlideClass}`}>
           <span className="text-xs uppercase tracking-widest text-white/40 font-mono mb-4">
             Line {currentLineIndex + 1} / {song.lyrics.length}
           </span>
@@ -518,7 +521,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                 <span
                   key={idx}
                   onClick={() => onSeek(w.startTime)}
-                  className={`cursor-pointer transition-all duration-200 ${fontClass} ${
+                  className={`cursor-pointer ${wordSmoothClass} ${fontClass} ${
                     isCurrent
                       ? 'text-4xl sm:text-6xl font-normal text-white border-b-2 border-white/80 pb-1'
                       : 'text-2xl sm:text-4xl font-light text-white/30 hover:text-white/60'
@@ -537,7 +540,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 8: 💿 VINYL ROTATING TURNTABLE & GROOVES */}
       {activeLine && settings.mode === 'vinyl-spin' && (
-        <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-8 px-4">
+        <div key={`vinyl-spin-${currentLineIndex}`} className={`w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-8 px-4 ${lineSlideClass}`}>
           {/* Rotating Vinyl Record with Glossy Grooves */}
           <div className="relative w-56 h-56 sm:w-72 sm:h-72 flex-shrink-0 flex items-center justify-center">
             {/* Ambient Vinyl Glow */}
@@ -598,7 +601,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
             {currentLineIndex > 0 && (
               <p
                 onClick={() => onSeek(song.lyrics[currentLineIndex - 1].startTime)}
-                className={`${fontClass} text-sm sm:text-lg text-white/30 hover:text-white/60 cursor-pointer font-light`}
+                className={`${fontClass} text-sm sm:text-lg text-white/30 hover:text-white/60 cursor-pointer font-light ${wordSmoothClass}`}
               >
                 {song.lyrics[currentLineIndex - 1].text}
               </p>
@@ -613,7 +616,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                   <span
                     key={idx}
                     onClick={() => onSeek(w.startTime)}
-                    className={`inline-block cursor-pointer font-black transition-all duration-200 ${fontClass} ${
+                    className={`inline-block cursor-pointer font-black ${wordSmoothClass} ${fontClass} ${
                       isCurrent
                         ? `${sizeMultiplierClass} ${transitionClass} text-white scale-110 z-20`
                         : isPast
@@ -639,7 +642,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
             {nextLine && (
               <p
                 onClick={() => onSeek(nextLine.startTime)}
-                className={`${fontClass} text-sm sm:text-lg text-white/40 hover:text-white/70 cursor-pointer font-light`}
+                className={`${fontClass} text-sm sm:text-lg text-white/40 hover:text-white/70 cursor-pointer font-light ${wordSmoothClass}`}
               >
                 {nextLine.text}
               </p>
@@ -650,7 +653,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 9: 📱 RETRO IPOD CLASSIC */}
       {activeLine && settings.mode === 'retro-ipod' && (
-        <div className="w-full max-w-sm sm:max-w-md p-5 sm:p-6 rounded-[2.5rem] bg-gradient-to-b from-neutral-200 to-neutral-400 text-neutral-900 shadow-2xl border-4 border-neutral-300 flex flex-col items-center select-none animate-float">
+        <div key={`retro-ipod-${currentLineIndex}`} className={`w-full max-w-sm sm:max-w-md p-5 sm:p-6 rounded-[2.5rem] bg-gradient-to-b from-neutral-200 to-neutral-400 text-neutral-900 shadow-2xl border-4 border-neutral-300 flex flex-col items-center select-none animate-float ${lineSlideClass}`}>
           {/* LCD Screen Display */}
           <div className="w-full bg-gradient-to-b from-cyan-950/90 to-cyan-900/90 rounded-2xl p-4 border-2 border-neutral-800 shadow-inner text-cyan-200 font-mono flex flex-col space-y-3 relative overflow-hidden">
             {/* Screen Header Bar */}
@@ -684,7 +687,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                     <span
                       key={idx}
                       onClick={() => onSeek(w.startTime)}
-                      className={`cursor-pointer transition-all duration-150 ${
+                      className={`cursor-pointer ${wordSmoothClass} ${
                         isCurrent
                           ? 'text-lg sm:text-2xl font-black text-cyan-50 bg-cyan-400/30 px-1.5 py-0.5 rounded shadow-md scale-110'
                           : 'text-sm sm:text-base font-medium text-cyan-300/50'
@@ -728,12 +731,12 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 10: 💬 iMESSAGE CHAT BUBBLES */}
       {activeLine && settings.mode === 'imessage-bubbles' && (
-        <div className="w-full max-w-xl flex flex-col space-y-3 px-4 py-6">
+        <div key={`imessage-${currentLineIndex}`} className={`w-full max-w-xl flex flex-col space-y-3 px-4 py-6 ${lineSlideClass}`}>
           {/* Past Line Bubble */}
           {currentLineIndex > 0 && (
             <div
               onClick={() => onSeek(song.lyrics[currentLineIndex - 1].startTime)}
-              className="self-end max-w-md p-3.5 rounded-2xl rounded-tr-sm bg-white/10 backdrop-blur-md border border-white/15 text-white/50 cursor-pointer hover:text-white/80 transition-all text-sm sm:text-base font-medium"
+              className={`self-end max-w-md p-3.5 rounded-2xl rounded-tr-sm bg-white/10 backdrop-blur-md border border-white/15 text-white/50 cursor-pointer hover:text-white/80 ${wordSmoothClass} text-sm sm:text-base font-medium`}
             >
               {song.lyrics[currentLineIndex - 1].text}
             </div>
@@ -755,7 +758,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                     <span
                       key={idx}
                       onClick={() => onSeek(w.startTime)}
-                      className={`cursor-pointer transition-all duration-150 ${fontClass} ${
+                      className={`cursor-pointer ${wordSmoothClass} ${fontClass} ${
                         isCurrent
                           ? 'text-2xl sm:text-4xl text-white font-black underline decoration-white/80 decoration-2 underline-offset-4 scale-105'
                           : 'text-xl sm:text-3xl text-white/70 font-semibold'
@@ -781,7 +784,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
           {nextLine && (
             <div
               onClick={() => onSeek(nextLine.startTime)}
-              className="self-start flex items-center gap-1.5 p-3 rounded-2xl rounded-tl-sm bg-white/10 backdrop-blur-md border border-white/10 text-white/60 cursor-pointer hover:text-white transition-all text-xs sm:text-sm"
+              className={`self-start flex items-center gap-1.5 p-3 rounded-2xl rounded-tl-sm bg-white/10 backdrop-blur-md border border-white/10 text-white/60 cursor-pointer hover:text-white ${wordSmoothClass} text-xs sm:text-sm`}
             >
               <span className="flex items-center gap-1 px-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -796,7 +799,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 11: 📼 90s VHS CAMCORDER */}
       {activeLine && settings.mode === 'vhs-camcorder' && (
-        <div className="w-full max-w-4xl p-6 sm:p-8 rounded-3xl border border-white/20 bg-black/60 backdrop-blur-md shadow-2xl relative overflow-hidden font-mono select-none animate-vhs-flicker">
+        <div key={`vhs-${currentLineIndex}`} className={`w-full max-w-4xl p-6 sm:p-8 rounded-3xl border border-white/20 bg-black/60 backdrop-blur-md shadow-2xl relative overflow-hidden font-mono select-none animate-vhs-flicker ${lineSlideClass}`}>
           {/* CRT Scanline Simulation */}
           <div
             className="absolute inset-0 pointer-events-none opacity-20"
@@ -834,7 +837,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                   <span
                     key={idx}
                     onClick={() => onSeek(w.startTime)}
-                    className={`cursor-pointer font-black transition-all duration-150 uppercase tracking-wide ${
+                    className={`cursor-pointer font-black ${wordSmoothClass} uppercase tracking-wide ${
                       isCurrent
                         ? `${sizeMultiplierClass} text-yellow-300 scale-110 z-20`
                         : isPast
@@ -864,12 +867,12 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 12: 🎤 APPLE MUSIC SING SPOTLIGHT */}
       {activeLine && settings.mode === 'apple-sing' && (
-        <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center px-4 space-y-6">
+        <div key={`apple-sing-${currentLineIndex}`} className={`w-full max-w-4xl flex flex-col items-center justify-center text-center px-4 space-y-6 ${lineSlideClass}`}>
           {/* Above Lines (Blurred & Translucent) */}
           {currentLineIndex > 1 && (
             <p
               onClick={() => onSeek(song.lyrics[currentLineIndex - 2].startTime)}
-              className={`${fontClass} text-xl sm:text-2xl text-white/15 blur-[2px] cursor-pointer hover:text-white/40 transition-all`}
+              className={`${fontClass} text-xl sm:text-2xl text-white/15 blur-[2px] cursor-pointer hover:text-white/40 ${wordSmoothClass}`}
             >
               {song.lyrics[currentLineIndex - 2].text}
             </p>
@@ -878,7 +881,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
           {currentLineIndex > 0 && (
             <p
               onClick={() => onSeek(song.lyrics[currentLineIndex - 1].startTime)}
-              className={`${fontClass} text-2xl sm:text-3xl text-white/35 blur-[1px] cursor-pointer hover:text-white/60 transition-all`}
+              className={`${fontClass} text-2xl sm:text-3xl text-white/35 blur-[1px] cursor-pointer hover:text-white/60 ${wordSmoothClass}`}
             >
               {song.lyrics[currentLineIndex - 1].text}
             </p>
@@ -902,7 +905,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
                   <span
                     key={idx}
                     onClick={() => onSeek(w.startTime)}
-                    className={`inline-block cursor-pointer font-black transition-all duration-200 ${fontClass} ${
+                    className={`inline-block cursor-pointer font-black ${wordSmoothClass} ${fontClass} ${
                       isCurrent
                         ? `${sizeMultiplierClass} ${transitionClass} text-white scale-115 z-30`
                         : isPast
@@ -929,7 +932,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
           {nextLine && (
             <p
               onClick={() => onSeek(nextLine.startTime)}
-              className={`${fontClass} text-2xl sm:text-3xl text-white/35 blur-[1px] cursor-pointer hover:text-white/60 transition-all`}
+              className={`${fontClass} text-2xl sm:text-3xl text-white/35 blur-[1px] cursor-pointer hover:text-white/60 ${wordSmoothClass}`}
             >
               {nextLine.text}
             </p>
@@ -939,7 +942,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
       {/* MODE 13: 🌀 HYPERSPACE WARP ZOOM */}
       {activeLine && settings.mode === 'vortex-zoom' && (
-        <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center px-4" style={{ perspective: '1000px' }}>
+        <div key={`vortex-zoom-${currentLineIndex}`} className={`w-full max-w-4xl flex flex-col items-center justify-center text-center px-4 ${lineSlideClass}`} style={{ perspective: '1000px' }}>
           {/* Cosmic Warp Speed Rings */}
           <div className="relative w-full flex items-center justify-center my-6">
             {/* Speed Tunnel Halo Lines */}
@@ -967,7 +970,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
 
                 {/* Primary Warp Text */}
                 <span
-                  className={`relative z-10 font-black uppercase tracking-tight cursor-pointer ${fontClass} ${sizeMultiplierClass}`}
+                  className={`relative z-10 font-black uppercase tracking-tight cursor-pointer ${fontClass} ${sizeMultiplierClass} ${wordSmoothClass}`}
                   style={{
                     color: colors.lyricTextColor || (activeWord.emphasis ? colors.accent : '#ffffff'),
                     textShadow: `0 0 ${40 * settings.glowIntensity}px ${colors.glow}, 0 0 ${80 * settings.glowIntensity}px ${colors.primary}`,
@@ -986,7 +989,7 @@ export const WordVisualizer: React.FC<WordVisualizerProps> = ({
               <span
                 key={idx}
                 onClick={() => onSeek(w.startTime)}
-                className={`${fontClass} text-sm sm:text-base cursor-pointer ${
+                className={`${fontClass} text-sm sm:text-base cursor-pointer ${wordSmoothClass} ${
                   idx === currentWordIndex ? 'text-white font-bold underline' : 'text-white/60'
                 }`}
               >
