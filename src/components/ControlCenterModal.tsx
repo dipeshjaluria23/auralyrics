@@ -76,6 +76,23 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
   const [activeTab, setActiveTab] = useState<ControlCenterTab>(initialTab);
   const [searchQuery, setSearchQuery] = useState('');
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const wallpaperInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleWallpaperUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      onUpdateSettings({
+        customWallpaperUrl: result,
+        backgroundStyle: 'custom-wallpaper',
+        coverBlurAmount: 0,
+        coverOpacity: 0.85,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Sync initialTab when modal opens
   React.useEffect(() => {
@@ -878,22 +895,32 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                       <ImageIcon className="w-3.5 h-3.5 text-cyan-400" /> Song Cover Artwork & Backdrop Style
                     </h4>
                     <p className="text-[11px] text-white/50 mt-1">
-                      Choose between Apple Music fluid artwork blur, cinematic Ken Burns, or fluid canvas
+                      Display the song's actual cover art, Apple Music fluid blur, or upload your own wallpaper image
                     </p>
                   </div>
 
-                  {/* 4 Background Style Pills */}
+                  {/* 6 Background Style Pills */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {[
+                      {
+                        id: 'album-cover-original',
+                        label: '🖼️ Actual Song Cover (Crisp & Clear)',
+                        desc: 'Full original album artwork of current song as wallpaper',
+                      },
+                      {
+                        id: 'album-cover-cinematic',
+                        label: '🎬 Cinematic Ken Burns Art',
+                        desc: 'Slow cinematic motion zoom & pan across album cover',
+                      },
                       {
                         id: 'album-cover-blur',
                         label: '🎵 Apple Music Fluid Blur',
                         desc: 'Artwork blurred into glowing fluid colors behind lyrics',
                       },
                       {
-                        id: 'album-cover-cinematic',
-                        label: '🎬 Cinematic Ken Burns Art',
-                        desc: 'Slow cinematic motion zoom & pan across album cover',
+                        id: 'custom-wallpaper',
+                        label: '📁 Custom Uploaded Image',
+                        desc: 'Use your own custom wallpaper or photo from your device',
                       },
                       {
                         id: 'dynamic-canvas',
@@ -906,11 +933,21 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                         desc: 'Ultra clean deep black with subtle ambient vignette',
                       },
                     ].map((style) => {
-                      const isSelected = (settings.backgroundStyle || 'album-cover-blur') === style.id;
+                      const isSelected = (settings.backgroundStyle || 'album-cover-original') === style.id;
                       return (
                         <button
                           key={style.id}
-                          onClick={() => onUpdateSettings({ backgroundStyle: style.id as VisualSettings['backgroundStyle'] })}
+                          onClick={() => {
+                            if (style.id === 'album-cover-original') {
+                              onUpdateSettings({
+                                backgroundStyle: 'album-cover-original',
+                                coverBlurAmount: 0,
+                                coverOpacity: 0.85,
+                              });
+                            } else {
+                              onUpdateSettings({ backgroundStyle: style.id as VisualSettings['backgroundStyle'] });
+                            }
+                          }}
                           className={`p-3 rounded-xl border text-left transition-all ${
                             isSelected
                               ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-md'
@@ -927,22 +964,70 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                     })}
                   </div>
 
-                  {/* Cover Artwork Adjustments (Active for album cover backdrop styles) */}
-                  {((settings.backgroundStyle || 'album-cover-blur') === 'album-cover-blur' ||
-                    settings.backgroundStyle === 'album-cover-cinematic') && (
+                  {/* Custom Wallpaper Direct Upload Box */}
+                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5 text-cyan-400" /> Custom Background Image
+                      </div>
+                      <div className="text-[11px] text-white/50">
+                        {settings.customWallpaperUrl
+                          ? '✨ Custom wallpaper is active'
+                          : 'Upload any JPG, PNG, or WEBP wallpaper from your laptop'}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={wallpaperInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleWallpaperUpload}
+                      />
+                      <button
+                        onClick={() => wallpaperInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-cyan-600/50 to-blue-600/50 hover:from-cyan-600 hover:to-blue-600 text-white border border-cyan-400/40 flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                      >
+                        <Upload className="w-3 h-3 text-cyan-300" />
+                        <span>{settings.customWallpaperUrl ? 'Change Image' : 'Upload Image'}</span>
+                      </button>
+
+                      {settings.customWallpaperUrl && (
+                        <button
+                          onClick={() =>
+                            onUpdateSettings({
+                              customWallpaperUrl: undefined,
+                              backgroundStyle: 'album-cover-original',
+                            })
+                          }
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-red-500/20 text-white/70 hover:text-red-300 border border-white/10 transition-all cursor-pointer"
+                          title="Revert to original song cover"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Cover Artwork Adjustments (Active for album cover or custom wallpaper backdrop styles) */}
+                  {((settings.backgroundStyle || 'album-cover-original') === 'album-cover-original' ||
+                    settings.backgroundStyle === 'album-cover-blur' ||
+                    settings.backgroundStyle === 'album-cover-cinematic' ||
+                    settings.backgroundStyle === 'custom-wallpaper') && (
                     <div className="space-y-4 pt-3 border-t border-white/10">
                       {/* Cover Blur Amount Slider */}
                       <div>
                         <div className="flex justify-between text-xs text-white/70 mb-1.5">
                           <span>🌫️ Cover Blur Depth</span>
-                          <span className="font-mono text-white font-bold">{settings.coverBlurAmount ?? 40}px</span>
+                          <span className="font-mono text-white font-bold">{settings.coverBlurAmount ?? 0}px</span>
                         </div>
                         <input
                           type="range"
                           min="0"
                           max="80"
                           step="2"
-                          value={settings.coverBlurAmount ?? 40}
+                          value={settings.coverBlurAmount ?? 0}
                           onChange={(e) => onUpdateSettings({ coverBlurAmount: parseInt(e.target.value) })}
                           className="w-full h-1.5 cursor-pointer accent-cyan-400"
                         />
@@ -951,15 +1036,15 @@ export const ControlCenterModal: React.FC<ControlCenterModalProps> = ({
                       {/* Cover Opacity Slider */}
                       <div>
                         <div className="flex justify-between text-xs text-white/70 mb-1.5">
-                          <span>👁️ Cover Artwork Opacity</span>
-                          <span className="font-mono text-white font-bold">{Math.round((settings.coverOpacity ?? 0.65) * 100)}%</span>
+                          <span>👁️ Cover Artwork Opacity & Brightness</span>
+                          <span className="font-mono text-white font-bold">{Math.round((settings.coverOpacity ?? 0.8) * 100)}%</span>
                         </div>
                         <input
                           type="range"
                           min="0.1"
                           max="1.0"
                           step="0.05"
-                          value={settings.coverOpacity ?? 0.65}
+                          value={settings.coverOpacity ?? 0.8}
                           onChange={(e) => onUpdateSettings({ coverOpacity: parseFloat(e.target.value) })}
                           className="w-full h-1.5 cursor-pointer accent-pink-400"
                         />

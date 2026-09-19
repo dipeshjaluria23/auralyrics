@@ -48,10 +48,11 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
       shortcuts: [
         { key: 'F', desc: '⛶ Toggle Fullscreen Zen Mode' },
         { key: 'C', desc: '🎨 Open Color & Theme Studio' },
+        { key: 'B', desc: '🖼️ Open Background & Backdrop Studio' },
         { key: 'S', desc: '⚙️ Open Master Control Center' },
         { key: 'L', desc: '🔗 Open Paste Song Link Importer' },
         { key: 'T', desc: '🎙️ Open Tap-to-Sync Song Studio' },
-        { key: 'B', desc: '📁 Open Song Library Drawer' },
+        { key: 'O', desc: '📁 Open Song Library Drawer' },
         { key: '?', desc: '⌨️ Show this Keyboard Shortcuts HUD' },
       ],
     },

@@ -13,7 +13,7 @@ import { SongStudioModal } from './components/SongStudioModal';
 import { LinkImporterModal } from './components/LinkImporterModal';
 import { ControlCenterModal, type ControlCenterTab } from './components/ControlCenterModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
-import { Sparkles, Sliders, Link as LinkIcon, Palette, Keyboard, Share2 } from 'lucide-react';
+import { Sparkles, Sliders, Link as LinkIcon, Palette, Keyboard, Share2, Image as ImageIcon } from 'lucide-react';
 import {
   saveCustomSong,
   loadCustomSongs,
@@ -79,9 +79,9 @@ export function App() {
       showLockScreenClock: true,
       lumnLighting: true,
       visualIcons: true,
-      backgroundStyle: 'album-cover-blur',
-      coverBlurAmount: 40,
-      coverOpacity: 0.65,
+      backgroundStyle: 'album-cover-original',
+      coverBlurAmount: 0,
+      coverOpacity: 0.85,
       kenBurnsEffect: true,
       smoothSpringTransitions: true,
     })
@@ -495,6 +495,9 @@ export function App() {
           setIsStudioOpen(true);
           break;
         case 'KeyB':
+          e.preventDefault();
+          openControlCenter('atmosphere');
+          break;
         case 'KeyO':
           e.preventDefault();
           setIsSongListOpen(true);
@@ -676,6 +679,16 @@ export function App() {
           >
             <Palette className="w-3.5 h-3.5 text-amber-300" />
             <span className="hidden sm:inline">Colors</span>
+          </button>
+
+          {/* Background / Cover Wallpaper Quick Shortcut */}
+          <button
+            onClick={() => openControlCenter('atmosphere')}
+            className="glass-button px-3.5 py-1.5 rounded-full text-xs font-semibold text-emerald-200 hover:text-white bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:from-emerald-600/60 hover:to-teal-600/60 border border-emerald-500/30 flex items-center gap-1.5 shadow-lg"
+            title="Change Background to Song Cover or Upload Wallpaper (Shortkey: B)"
+          >
+            <ImageIcon className="w-3.5 h-3.5 text-emerald-300" />
+            <span className="hidden sm:inline">Backdrop</span>
           </button>
 
           {/* Master Control Center / Settings Button */}

@@ -17,9 +17,19 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const bgStyle = settings.backgroundStyle || 'album-cover-blur';
-  const coverBlur = settings.coverBlurAmount !== undefined ? settings.coverBlurAmount : 40;
-  const coverOpacity = settings.coverOpacity !== undefined ? settings.coverOpacity : 0.65;
+  const bgStyle = settings.backgroundStyle || 'album-cover-original';
+  const isCustom = bgStyle === 'custom-wallpaper';
+  const isCoverStyle =
+    bgStyle === 'album-cover-original' ||
+    bgStyle === 'album-cover-cinematic' ||
+    bgStyle === 'album-cover-blur' ||
+    isCustom;
+
+  const activeImage = isCustom && settings.customWallpaperUrl ? settings.customWallpaperUrl : coverUrl;
+
+  const defaultBlur = bgStyle === 'album-cover-original' ? 0 : bgStyle === 'album-cover-cinematic' ? 8 : 40;
+  const coverBlur = settings.coverBlurAmount !== undefined ? settings.coverBlurAmount : defaultBlur;
+  const coverOpacity = settings.coverOpacity !== undefined ? settings.coverOpacity : 0.75;
   const isKenBurns = settings.kenBurnsEffect !== false;
 
   const showCanvas = bgStyle === 'dynamic-canvas' || bgStyle === 'album-cover-blur';
@@ -104,15 +114,14 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
         const gradient = ctx.createRadialGradient(
           currentX,
           currentY,
-          0,
+          currentRadius * 0.1,
           currentX,
           currentY,
           currentRadius
         );
 
-        const glowMult = settings.glowIntensity || 1.3;
-        gradient.addColorStop(0, hexToRgba(blob.color, 0.42 * glowMult));
-        gradient.addColorStop(0.5, hexToRgba(blob.color, 0.16 * glowMult));
+        gradient.addColorStop(0, hexToRgba(blob.color, 0.42));
+        gradient.addColorStop(0.5, hexToRgba(blob.color, 0.18));
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = gradient;
@@ -121,32 +130,17 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
         ctx.fill();
       });
 
-      // Draw subtle audio visualizer wave in background
-      if (settings.showVisualizerBars && isPlaying) {
-        const freqData = audioEngine.getFrequencyData();
-        const barWidth = width / freqData.length;
-        ctx.fillStyle = hexToRgba(colors.primary, 0.12);
-
-        for (let i = 0; i < freqData.length; i++) {
-          const barHeight = (freqData[i] / 255) * height * 0.28;
-          ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
-        }
-      }
-
-      // Render floating particles / stardust
+      // Draw Stardust Particles
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
 
-        if (p.y < 0) {
-          p.y = height;
-          p.x = Math.random() * width;
-        }
+        if (p.y < 0) p.y = height;
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
 
-        const twinkle = Math.sin(time * 3 + p.x) * 0.3;
-        const alpha = Math.max(0.05, Math.min(1, (p.baseAlpha + twinkle) * (settings.glowIntensity || 1.3)));
+        const pulse = Math.sin(time * 3 + p.x) * 0.3;
+        const alpha = Math.max(0.1, Math.min(1, p.baseAlpha + pulse));
 
         ctx.fillStyle = hexToRgba(p.color, alpha);
         ctx.beginPath();
@@ -175,17 +169,21 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
         }}
       />
 
-      {/* 2. Full-Bleed Album Cover Backdrop (Cinematic & Blurred Modes) */}
-      {(bgStyle === 'album-cover-cinematic' || bgStyle === 'album-cover-blur') && (
+      {/* 2. Full-Bleed Album Cover Backdrop (Original, Cinematic, Blur, or Custom Uploaded Wallpaper) */}
+      {isCoverStyle && activeImage && (
         <div
           className={`absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center transition-all duration-1000 ${
             isKenBurns && isPlaying ? 'animate-ken-burns' : 'scale-105'
           }`}
           style={{
-            backgroundImage: `url(${coverUrl})`,
+            backgroundImage: `url(${activeImage})`,
             opacity: coverOpacity,
-            filter: `blur(${coverBlur}px) saturate(1.7) brightness(${
-              bgStyle === 'album-cover-cinematic' ? 0.75 : 0.65
+            filter: `blur(${coverBlur}px) saturate(1.35) brightness(${
+              bgStyle === 'album-cover-original'
+                ? 0.82
+                : bgStyle === 'album-cover-cinematic'
+                ? 0.75
+                : 0.65
             })`,
             willChange: 'transform, opacity, filter',
           }}
@@ -212,10 +210,12 @@ export const AestheticBackground: React.FC<AestheticBackgroundProps> = ({
 
       {/* 5. Cinematic Vignette Overlay (Ensures lyrics remain 100% legible) */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-opacity duration-700"
         style={{
           background:
-            bgStyle === 'album-cover-cinematic'
+            bgStyle === 'album-cover-original'
+              ? 'radial-gradient(circle at center, rgba(3,3,7,0.3) 15%, rgba(3,3,7,0.7) 65%, rgba(3,3,7,0.94) 100%)'
+              : bgStyle === 'album-cover-cinematic'
               ? 'radial-gradient(circle at center, rgba(3,3,7,0.3) 20%, rgba(3,3,7,0.75) 70%, rgba(3,3,7,0.92) 100%)'
               : 'radial-gradient(circle at center, transparent 25%, rgba(3,3,7,0.65) 80%, rgba(3,3,7,0.9) 100%)',
         }}
